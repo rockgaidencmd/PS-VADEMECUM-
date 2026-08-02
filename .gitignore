@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+
+# Carpeta web generada (se reconstruye con: npm run build)
+www/
+
+# Artefactos de compilación Android
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/release/
+android/app/debug/
+android/capacitor-cordova-android-plugins/
+
+# Claves de firma — NUNCA deben entrar al repositorio
+*.jks
+*.keystore
+keystore.properties
+
+# Sistema
+.DS_Store

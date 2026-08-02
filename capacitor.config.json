@@ -1,0 +1,11 @@
+{
+  "appId": "com.medishort360.vademecum",
+  "appName": "Vademécum ENF",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
