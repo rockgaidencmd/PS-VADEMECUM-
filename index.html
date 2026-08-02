@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0f1a" />
+  <meta name="description" content="Vademécum Enfermería — Consulta farmacológica rápida y segura para profesionales de enfermería" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vademécum ENF" />
+  <title>Vademécum Enfermería</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icono-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icono-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./style.css" />
+  <script>
+    (function() {
+      var t = localStorage.getItem('vade_theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════
+       SPLASH SCREEN
+  ══════════════════════════════════════════════ -->
+  <div id="splash-screen" class="splash" aria-hidden="true">
+    <div class="splash-bg"></div>
+    <div class="splash-content">
+      <div class="splash-logo-ring">
+        <!-- Anillo animado exterior -->
+        <svg class="splash-ring-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="ring-track" cx="60" cy="60" r="54" stroke="#0e2a3a" stroke-width="3"/>
+          <circle class="ring-progress" cx="60" cy="60" r="54" stroke="url(#ringGrad)" stroke-width="3"
+            stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+          <defs>
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00d4ff"/>
+              <stop offset="100%" stop-color="#00ffb3"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <!-- Logo real MediShort360 (con fallback a cruz SVG) -->
+        <img
+          class="splash-logo-img"
+          src="./icono-192.png"
+          alt="Vademécum Enfermería"
+          draggable="false"
+          onerror="this.style.display='none';document.getElementById('splashLogoFallback').style.display='flex';"
+        />
+        <div id="splashLogoFallback" class="splash-logo-fallback" style="display:none;">
+          <span></span><span></span>
+        </div>
+      </div>
+      <div class="splash-title">
+        <span class="splash-title-vade">VADEMÉCUM</span>
+        <span class="splash-title-enf">ENFERMERÍA</span>
+      </div>
+      <div class="splash-tagline">Farmacología clínica al instante</div>
+      <div class="splash-suite">MediShort360 Suite</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       APP SHELL
+  ══════════════════════════════════════════════ -->
+  <div id="app" class="app hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar" role="banner">
+      <button class="topbar-menu-btn" id="menuToggle" aria-label="Menú principal" aria-expanded="false">
+        <span class="hamburger"></span>
+      </button>
+      <div class="topbar-title">
+        <span class="topbar-title-vade">VADEMÉCUM</span>
+        <span class="topbar-title-enf">ENF</span>
+      </div>
+      <button class="topbar-install-btn hidden" id="installToggle" aria-label="Instalar aplicación" title="Instalar aplicación">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7,10 12,15 17,10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>
+      <button class="topbar-theme-btn" id="themeToggle" aria-label="Cambiar tema">
+        <!-- Sol: visible en modo claro para volver a oscuro -->
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <!-- Luna: visible en modo oscuro para activar el claro -->
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="topbar-search-btn" id="searchToggle" aria-label="Buscar medicamento">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- SEARCH BAR (colapsable) -->
+    <div class="searchbar-wrap" id="searchBarWrap" aria-hidden="true">
+      <div class="searchbar">
+        <svg class="searchbar-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="search"
+          id="searchInput"
+          class="searchbar-input"
+          placeholder="Buscar medicamento..."
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-label="Buscar medicamento"
+        />
+        <button class="searchbar-clear hidden" id="searchClear" aria-label="Limpiar búsqueda">✕</button>
+      </div>
+      <div class="search-results" id="searchResults" role="listbox" aria-label="Resultados de búsqueda"></div>
+    </div>
+
+    <!-- SIDE NAV OVERLAY -->
+    <div class="nav-overlay hidden" id="navOverlay" aria-hidden="true"></div>
+
+    <!-- SIDE NAV -->
+    <nav class="sidenav" id="sideNav" role="navigation" aria-label="Navegación principal">
+      <div class="sidenav-header">
+        <div class="sidenav-logo">
+          <div class="sidenav-cross"><span></span><span></span></div>
+          <div>
+            <div class="sidenav-title-vade">VADEMÉCUM</div>
+            <div class="sidenav-title-enf">ENFERMERÍA</div>
+          </div>
+        </div>
+        <button class="sidenav-close" id="navClose" aria-label="Cerrar menú">✕</button>
+      </div>
+
+      <ul class="sidenav-list">
+        <li>
+          <a href="#" class="sidenav-link active" data-view="home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Inicio
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidenav-link" data-view="categorias">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Categorías
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidenav-link" data-view="hemoterapia">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+            Hemoterapia
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidenav-link" data-view="favoritos">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+            Favoritos
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidenav-link" data-view="alto-riesgo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Alto Riesgo
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidenav-link" data-view="acerca">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Acerca de
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidenav-footer">
+        <div class="sidenav-version">v1.0.0 — MediShort360</div>
+        <div class="sidenav-disclaimer">Solo uso de referencia clínica. No reemplaza el juicio profesional.</div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content" id="mainContent" role="main">
+
+      <!-- ── VIEW: HOME ── -->
+      <section class="view active" id="view-home" data-view="home">
+
+        <div class="home-hero">
+          <div class="home-hero-brand">
+            <img src="./icono-192.png" alt="MediShort360" class="home-hero-logo"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="home-hero-cross" style="display:none;"><span></span><span></span></div>
+            <span class="home-hero-brand-name">MEDISHORT360</span>
+          </div>
+          <div class="home-hero-badge">FARMACOLOGÍA CLÍNICA</div>
+          <h1 class="home-hero-title">Administración<br/>segura en<br/><em>menos de 30s</em></h1>
+          <p class="home-hero-sub">Fichas farmacológicas verificadas para enfermería UCI, emergencias y hospitalización.</p>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <span class="stat-num" id="statMeds">5</span>
+            <span class="stat-label">Medicamentos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num">4</span>
+            <span class="stat-label">Niveles de info</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num">🔴</span>
+            <span class="stat-label">Alto riesgo</span>
+          </div>
+        </div>
+
+        <!-- Banner de instalación (PWA) -->
+        <div class="install-banner hidden" id="installBannerHome">
+          <button class="install-banner-main" id="installBannerBtn" aria-label="Instalar aplicación">
+            <span class="ib-icon">📲</span>
+            <span class="ib-text">
+              <span class="ib-title">Instalar aplicación</span>
+              <span class="ib-sub">Acceso directo desde tu pantalla de inicio, sin navegador</span>
+            </span>
+            <span class="ib-arrow">›</span>
+          </button>
+          <button class="install-banner-close" id="installBannerClose" aria-label="Cerrar aviso de instalación">✕</button>
+        </div>
+
+        <!-- Acceso destacado: Hemoterapia -->
+        <button class="home-hemo-access" data-view="hemoterapia" aria-label="Ir a Hemoterapia">
+          <span class="hha-icon">🩸</span>
+          <span class="hha-text">
+            <span class="hha-title">Hemoterapia</span>
+            <span class="hha-sub">Hemocomponentes y hemoderivados</span>
+          </span>
+          <span class="hha-arrow">›</span>
+        </button>
+
+        <!-- Categorías rápidas -->
+        <div class="section-label">CATEGORÍAS PRINCIPALES</div>
+        <div class="category-grid" id="categoryGrid">
+          <button class="category-card" data-category="vasopresores">
+            <span class="cat-icon">❤️</span>
+            <span class="cat-name">Vasopresores</span>
+          </button>
+          <button class="category-card" data-category="antibioticos">
+            <span class="cat-icon">🦠</span>
+            <span class="cat-name">Antibióticos</span>
+          </button>
+          <button class="category-card" data-category="electrolitos">
+            <span class="cat-icon">⚡</span>
+            <span class="cat-name">Electrolitos</span>
+          </button>
+          <button class="category-card" data-category="insulinas">
+            <span class="cat-icon">💉</span>
+            <span class="cat-name">Insulinas</span>
+          </button>
+          <button class="category-card" data-category="diureticos">
+            <span class="cat-icon">💧</span>
+            <span class="cat-name">Diuréticos</span>
+          </button>
+          <button class="category-card" data-category="anticoagulantes">
+            <span class="cat-icon">🩸</span>
+            <span class="cat-name">Anticoagulantes</span>
+          </button>
+          <button class="category-card" data-category="antiarritmicos">
+            <span class="cat-icon">📈</span>
+            <span class="cat-name">Antiarrítmicos</span>
+          </button>
+          <button class="category-card" data-category="analgesia">
+            <span class="cat-icon">🫁</span>
+            <span class="cat-name">Analgesia/Sedación</span>
+          </button>
+        </div>
+
+        <!-- Vistos recientemente -->
+        <div class="section-label section-label--row">
+          <span>🕐 VISTOS RECIENTEMENTE</span>
+          <button class="recent-clear" id="recentClear" type="button" hidden>Limpiar</button>
+        </div>
+        <div class="med-list" id="recentList"></div>
+
+      </section>
+
+      <!-- ── VIEW: MEDICAMENTO ── -->
+      <section class="view hidden" id="view-med" data-view="med">
+        <div id="medContent"></div>
+      </section>
+
+      <!-- ── VIEW: CATEGORÍAS ── -->
+      <section class="view hidden" id="view-categorias" data-view="categorias">
+        <div class="view-header">
+          <h2 class="view-title">Categorías</h2>
+        </div>
+        <div class="cat-full-grid" id="catFullGrid"></div>
+      </section>
+
+      <!-- ── VIEW: RESULTADOS DE CATEGORÍA ── -->
+      <section class="view hidden" id="view-cat-meds" data-view="cat-meds">
+        <div id="catMedsContent"></div>
+      </section>
+
+      <!-- ── VIEW: HEMOTERAPIA ── -->
+      <section class="view hidden" id="view-hemoterapia" data-view="hemoterapia">
+        <div class="view-header">
+          <h2 class="view-title">🩸 Hemoterapia</h2>
+          <p class="view-subtitle">Hemocomponentes y hemoderivados · Guía de transfusión para enfermería</p>
+        </div>
+        <div class="hemo-tabs" role="tablist" aria-label="Tipos de productos sanguíneos">
+          <button class="hemo-tab active" data-hemo-tab="hemocomponentes" role="tab" aria-selected="true">
+            🧫 Hemocomponentes
+          </button>
+          <button class="hemo-tab" data-hemo-tab="hemoderivados" role="tab" aria-selected="false">
+            🏭 Hemoderivados
+          </button>
+        </div>
+        <p class="hemo-tab-desc" id="hemoTabDesc"></p>
+        <div class="med-list" id="hemoList"></div>
+      </section>
+
+      <!-- ── VIEW: FAVORITOS ── -->
+      <section class="view hidden" id="view-favoritos" data-view="favoritos">
+        <div class="view-header">
+          <h2 class="view-title">Favoritos</h2>
+        </div>
+        <div class="med-list" id="favList">
+          <div class="empty-state">
+            <span class="empty-icon">⭐</span>
+            <p>Aún no tienes favoritos.<br/>Toca la estrella en cualquier ficha.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── VIEW: ALTO RIESGO ── -->
+      <section class="view hidden" id="view-alto-riesgo" data-view="alto-riesgo">
+        <div class="view-header">
+          <h2 class="view-title">🔴 Alto Riesgo</h2>
+          <p class="view-subtitle">Medicamentos que requieren doble verificación y vigilancia especial</p>
+        </div>
+        <div class="med-list" id="riskListFull"></div>
+      </section>
+
+      <!-- ── VIEW: ACERCA ── -->
+      <section class="view hidden" id="view-acerca" data-view="acerca">
+        <div class="view-header">
+          <h2 class="view-title">Acerca de</h2>
+        </div>
+        <div class="acerca-content">
+          <div class="acerca-logo-block">
+            <div class="acerca-cross"><span></span><span></span></div>
+            <div class="acerca-app-name">VADEMÉCUM ENFERMERÍA</div>
+            <div class="acerca-version">Versión 1.0.0</div>
+          </div>
+          <div class="acerca-card">
+            <h3>Objetivo</h3>
+            <p>Brindar información farmacológica clínica verificada para que el personal de enfermería pueda administrar medicamentos de forma segura en menos de 30 segundos.</p>
+          </div>
+          <div class="acerca-card">
+            <h3>Población objetivo</h3>
+            <ul>
+              <li>Estudiantes y licenciados en enfermería</li>
+              <li>Personal de UCI y cuidados críticos</li>
+              <li>Enfermería de emergencias</li>
+              <li>Hospitalización general</li>
+              <li>Pediatría y gineco-obstetricia</li>
+            </ul>
+          </div>
+          <div class="acerca-card">
+            <h3>Fuentes</h3>
+            <ul>
+              <li>DailyMed / FDA</li>
+              <li>MedlinePlus / NIH</li>
+              <li>Surviving Sepsis Campaign</li>
+              <li>Guías clínicas internacionales</li>
+              <li>OMS / OPS</li>
+            </ul>
+          </div>
+          <div class="acerca-disclaimer">
+            <strong>⚠️ Aviso importante</strong><br/>
+            Esta aplicación es solo una herramienta de referencia clínica. No reemplaza el juicio clínico profesional, los protocolos institucionales ni la valoración individualizada del paciente. Siempre consulte las guías de su institución.
+          </div>
+          <div class="acerca-suite">Parte de <strong>MediShort360 Suite</strong></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottomnav" role="navigation" aria-label="Navegación inferior">
+      <button class="bn-btn active" data-view="home" aria-label="Inicio">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="bn-btn" data-view="categorias" aria-label="Categorías">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Categorías</span>
+      </button>
+      <button class="bn-btn" data-view="alto-riesgo" aria-label="Alto Riesgo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Alto Riesgo</span>
+      </button>
+      <button class="bn-btn" data-view="hemoterapia" aria-label="Hemoterapia">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+        <span>Hemoterapia</span>
+      </button>
+      <button class="bn-btn" data-view="favoritos" aria-label="Favoritos">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        <span>Favoritos</span>
+      </button>
+    </nav>
+
+  </div><!-- /app -->
+
+  <!-- Back to top -->
+  <button class="back-to-top hidden" id="backToTop" aria-label="Volver arriba">↑</button>
+
+  <!-- Scripts -->
+  <script src="./data/noradrenalina.js"></script>
+  <script src="./data/vancomicina.js"></script>
+  <script src="./data/insulina-regular.js"></script>
+  <script src="./data/cloruro-potasio.js"></script>
+  <script src="./data/meropenem.js"></script>
+  <script src="./data/tramadol.js"></script>
+  <script src="./data/furosemida.js"></script>
+  <script src="./data/heparina.js"></script>
+  <script src="./data/amiodarona.js"></script>
+  <script src="./data/magnesio.js"></script>
+  <script src="./data/fenitoina.js"></script>
+  <script src="./data/omeprazol.js"></script>
+  <script src="./data/metoclopramida.js"></script>
+  <script src="./data/hidrocortisona.js"></script>
+  <script src="./data/adrenalina.js"></script>
+  <script src="./data/albumina.js"></script>
+  <script src="./data/dopamina.js"></script>
+  <script src="./data/midazolam.js"></script>
+  <script src="./data/ceftriaxona.js"></script>
+  <script src="./data/paracetamol.js"></script>
+  <script src="./data/enoxaparina.js"></script>
+  <script src="./data/morfina.js"></script>
+  <script src="./data/metamizol.js"></script>
+  <script src="./data/propofol.js"></script>
+  <script src="./data/salbutamol.js"></script>
+  <script src="./data/atropina.js"></script>
+  <script src="./data/fentanilo.js"></script>
+  <script src="./data/dexametasona.js"></script>
+  <script src="./data/ondansetron.js"></script>
+  <script src="./data/famotidina.js"></script>
+  <script src="./data/cefazolina.js"></script>
+  <script src="./data/ciprofloxacino.js"></script> 
+  <script src="./data/clopidogrel.js"></script>    
+  <script src="./data/nitroglicerina.js"></script>
+  <script src="./data/ketamina.js"></script>
+  <script src="./data/lidocaina.js"></script>
+  <script src="./data/metilprednisolona.js"></script>
+  <script src="./data/piperacilina-tazobactam.js"></script>
+  <script src="./data/clindamicina.js"></script>
+  <script src="./data/etomidato.js"></script>
+  <script src="./data/rocuronio.js"></script>
+  <script src="./data/naloxona.js"></script>
+  <script src="./data/flumazenil.js"></script>
+  <script src="./data/bicarbonato-sodico.js"></script>
+  <script src="./data/gluconato-calcico.js"></script>
+  <script src="./data/acido-tranexamico.js"></script>
+  <script src="./data/metronidazol.js"></script>
+  <script src="./data/manitol.js"></script>
+  <script src="./data/sulfato-protamina.js"></script>
+  <script src="./data/vitamina-k.js"></script>
+  <script src="./data/sugammadex.js"></script>
+  <script src="./data/labetalol.js"></script>
+  <script src="./data/esmolol.js"></script>
+  <script src="./data/dobutamina.js"></script>
+  <script src="./data/vasopresina.js"></script>
+  <script src="./data/adenosina.js"></script>
+  <script src="./data/nicardipino.js"></script>
+  <script src="./data/linezolid.js"></script>
+  <script src="./data/cefepima.js"></script>
+  <script src="./data/daptomicina.js"></script>
+  <script src="./data/diltiazem.js"></script>
+  <script src="./data/nitroprusiato.js"></script>
+  <script src="./data/fluconazol.js"></script>
+  <script src="./data/pantoprazol.js"></script>
+  <script src="./data/aciclovir.js"></script>
+  <script src="./data/caspofungina.js"></script>
+  <script src="./data/nimodipino.js"></script>
+  <script src="./data/digoxina.js"></script>
+  <script src="./data/ceftazidima.js"></script>
+  <script src="./data/levofloxacino.js"></script>
+  <script src="./data/ampicilina-sulbactam.js"></script>
+  <script src="./data/hidralazina.js"></script>
+  <script src="./data/verapamilo.js"></script>
+  <script src="./data/amikacina.js"></script>
+  <script src="./data/clonazepam.js"></script>
+  <script src="./data/oxitocina.js"></script>
+  <script src="./data/warfarina.js"></script>
+  <script src="./data/acetilcisteina.js"></script>
+  <script src="./data/levetiracetam.js"></script>
+  <script src="./data/dexmedetomidina.js"></script>
+  <script src="./data/alteplasa.js"></script>
+  <script src="./data/fenobarbital.js"></script>
+  <script src="./data/succinilcolina.js"></script>
+  <script src="./data/acido-valproico.js"></script>
+  <script src="./data/neostigmina.js"></script>
+  <script src="./data/terlipresina.js"></script>
+  <script src="./data/milrinona.js"></script>
+  <script src="./data/voriconazol.js"></script>
+  <script src="./data/haloperidol.js"></script>
+  <script src="./data/tiamina.js"></script>
+  <script src="./data/desmopresina.js"></script>
+  <script src="./data/cisatracurio.js"></script>
+  <script src="./data/lorazepam.js"></script>
+  <script src="./data/octreotido.js"></script>
+  <script src="./data/cotrimoxazol.js"></script>
+  <script src="./data/azitromicina.js"></script>
+  <script src="./data/idarucizumab.js"></script>
+  <script src="./data/levosimendan.js"></script>
+  <!-- HEMOTERAPIA · Hemocomponentes -->
+  <script src="./data/sangre-total.js"></script>
+  <script src="./data/concentrado-eritrocitos.js"></script>
+  <script src="./data/concentrado-plaquetas.js"></script>
+  <script src="./data/plasma-fresco-congelado.js"></script>
+  <script src="./data/crioprecipitado.js"></script>
+  <!-- HEMOTERAPIA · Hemoderivados -->
+  <script src="./data/albumina-humana.js"></script>
+  <script src="./data/inmunoglobulinas.js"></script>
+  <script src="./data/factor-viii.js"></script>
+  <script src="./data/factor-ix.js"></script>
+  <script src="./data/complejo-protrombinico.js"></script>
+  <script src="./data/gentamicina.js"></script>
+  <script src="./data/imipenem-cilastatina.js"></script>
+  <script src="./data/colistina.js"></script>
+  <script src="./data/tigeciclina.js"></script>
+  <script src="./data/cefuroxima.js"></script>
+  <script src="./data/amoxicilina-clavulanico.js"></script>
+  <script src="./data/aztreonam.js"></script>
+  <script src="./data/anfotericina-b-liposomal.js"></script>
+  <script src="./data/ceftarolina.js"></script>
+  <script src="./data/fosfomicina.js"></script>
+  <script src="./data/diazepam.js"></script>
+  <script src="./data/glucagon.js"></script>
+  <script src="./data/ketorolaco.js"></script>
+  <script src="./data/acido-acetilsalicilico.js"></script>
+  <script src="./data/butilescopolamina.js"></script>
+  <script src="./data/ertapenem.js"></script>
+  <script src="./data/fondaparinux.js"></script>
+  <script src="./data/fenilefrina.js"></script>
+  <script src="./data/leucovorina.js"></script>
+  <script src="./data/tirofiban.js"></script>
+  <script src="./data/penicilina-g-sodica.js"></script>
+  <script src="./data/difenhidramina.js"></script>
+  <script src="./data/dimenhidrinato.js"></script>
+  <script src="./data/ampicilina.js"></script>
+  <script src="./data/vecuronio.js"></script>
+  <script src="./data/metilergometrina.js"></script>
+  <script src="./data/nalbufina.js"></script>
+  <script src="./data/betametasona.js"></script>
+  <script src="./data/anfotericina-b-convencional.js"></script>
+  <script src="./data/piridoxina.js"></script>
+  <script src="./data/diclofenaco.js"></script>
+  <script src="./data/cloruro-calcio.js"></script>
+  <script src="./data/prometazina.js"></script>
+  <script src="./data/meperidina.js"></script>
+  <script src="./data/hierro-sacarosato.js"></script>
+  <script src="./data/aminofilina.js"></script>
+  <script src="./data/doxiciclina.js"></script>
+  <script src="./data/cianocobalamina.js"></script>
+  <script src="./data/acido-folico.js"></script>
+  <script src="./data/cloranfenicol.js"></script>
+  <script src="./data/carbetocina.js"></script>
+  <script src="./data/azul-metileno.js"></script>
+  <script src="./data/deferoxamina.js"></script>
+  <script src="./data/bupivacaina.js"></script>
+  <script src="./data/estreptomicina.js"></script>
+  <script src="./data/procainamida.js"></script>
+  <script src="./data/metoprolol.js"></script>
+  <script src="./data/lacosamida.js"></script>
+  <script src="./data/acido-zoledronico.js"></script>
+  <script src="./data/efedrina.js"></script>
+  <script src="./data/cloruro-sodio-hipertonico.js"></script>
+  <script src="./data/dextrosa-hipertonica.js"></script>
+  <script src="./data/insulina-accion-rapida.js"></script>
+  <script src="./data/insulina-nph.js"></script>
+  <script src="./data/insulina-glargina.js"></script>
+  <script src="./activation.js"></script>
+  <script src="./disclaimer.js"></script>
+  <script src="./app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+</body>
+</html>
