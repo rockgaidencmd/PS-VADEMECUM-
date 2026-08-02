@@ -35,7 +35,10 @@
         </provider>
     </application>
 
-    <!-- Permissions -->
-
+    <!-- Permisos.
+         La app no realiza ninguna petición de red: todo el contenido se sirve
+         desde los recursos empaquetados. Este permiso es el que Capacitor
+         declara por defecto y puede retirarse, pero conviene comprobar antes
+         en un dispositivo real que la WebView sigue cargando correctamente. -->
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

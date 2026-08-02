@@ -1,0 +1,88 @@
+name: Compilar AAB de release
+
+# Se lanza a mano desde la pestaña Actions del repositorio.
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: "versionName (ej. 1.0.0). Vacío = el valor de build.gradle"
+        required: false
+      versionCode:
+        description: "versionCode (entero). Vacío = el valor de build.gradle"
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Generar www/ y sincronizar con Android
+        run: |
+          npm run build
+          npx cap sync android
+
+      - name: Aplicar versión indicada
+        if: inputs.versionName != '' || inputs.versionCode != ''
+        run: |
+          cd android/app
+          if [ -n "${{ inputs.versionName }}" ]; then
+            sed -i "s/versionName \".*\"/versionName \"${{ inputs.versionName }}\"/" build.gradle
+          fi
+          if [ -n "${{ inputs.versionCode }}" ]; then
+            sed -i "s/versionCode .*/versionCode ${{ inputs.versionCode }}/" build.gradle
+          fi
+          grep -E "versionCode|versionName" build.gradle
+
+      - name: Preparar credenciales de firma
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Falta el secreto KEYSTORE_BASE64. Sin él el AAB no se puede firmar y Play Console lo rechazará."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > android/release.keystore
+          cat > android/keystore.properties <<EOF
+          storeFile=release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      - name: Compilar AAB firmado
+        run: cd android && ./gradlew bundleRelease --no-daemon
+
+      - name: Comprobar que el AAB quedó firmado
+        run: |
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          unzip -l "$AAB" | grep -q "META-INF/.*\.RSA\|META-INF/.*\.EC" \
+            && echo "AAB firmado correctamente" \
+            || { echo "::error::El AAB no contiene firma"; exit 1; }
+
+      - name: Borrar credenciales del runner
+        if: always()
+        run: rm -f android/release.keystore android/keystore.properties
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
