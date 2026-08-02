@@ -22,6 +22,8 @@ function showDisclaimerModal() {
       <div class="disclaimer-body">
         <p class="disc-lead">Esta aplicación es una herramienta de <strong>referencia clínica educativa</strong> únicamente.</p>
 
+        <p class="disc-sub"><strong>No es un dispositivo médico</strong> y no diagnostica, trata, cura ni previene ninguna enfermedad o condición médica. Consulta siempre a un profesional de la salud cualificado ante cualquier duda sobre diagnóstico o tratamiento.</p>
+
         <p class="disc-sub">No reemplaza:</p>
         <ul>
           <li>El juicio clínico profesional independiente</li>
