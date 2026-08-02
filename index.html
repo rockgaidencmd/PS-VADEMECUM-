@@ -23,6 +23,10 @@
     (function() {
       var t = localStorage.getItem('vade_theme');
       if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      // Estado residual del antiguo sistema de activación por código.
+      ['vade_activado', 'vade_codigo', 'vade_activated_at'].forEach(function(k) {
+        try { localStorage.removeItem(k); } catch (e) {}
+      });
     })();
   </script>
 </head>
@@ -590,7 +594,6 @@
   <script src="./data/insulina-accion-rapida.js"></script>
   <script src="./data/insulina-nph.js"></script>
   <script src="./data/insulina-glargina.js"></script>
-  <script src="./activation.js"></script>
   <script src="./disclaimer.js"></script>
   <script src="./app.js"></script>
   <script>
