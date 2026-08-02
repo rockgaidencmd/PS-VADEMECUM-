@@ -1,6 +1,6 @@
 {
   "appId": "com.medishort360.vademecum",
-  "appName": "Vademécum ENF",
+  "appName": "Vademécum MediShort360",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
