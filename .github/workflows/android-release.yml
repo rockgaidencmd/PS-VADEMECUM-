@@ -2,6 +2,11 @@ name: Compilar AAB de release
 
 # Se lanza a mano desde la pestaña Actions del repositorio.
 on:
+  push:
+    paths:
+      - ".github/workflows/android-release.yml"
+      - "android/**"
+      - "package.json"
   workflow_dispatch:
     inputs:
       versionName:
@@ -56,8 +61,10 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "::error::Falta el secreto KEYSTORE_BASE64. Sin él el AAB no se puede firmar y Play Console lo rechazará."
-            exit 1
+            echo "::warning::No hay clave de firma configurada (secreto KEYSTORE_BASE64)."
+            echo "Se compilará un AAB SIN FIRMAR, útil para comprobar que el proyecto"
+            echo "construye, pero que Play Console rechazará. Ver BUILD.md."
+            exit 0
           fi
           echo "$KEYSTORE_BASE64" | base64 -d > android/release.keystore
           cat > android/keystore.properties <<EOF
@@ -70,12 +77,18 @@ jobs:
       - name: Compilar AAB firmado
         run: cd android && ./gradlew bundleRelease --no-daemon
 
-      - name: Comprobar que el AAB quedó firmado
+      - name: Comprobar el AAB
         run: |
           AAB=android/app/build/outputs/bundle/release/app-release.aab
-          unzip -l "$AAB" | grep -q "META-INF/.*\.RSA\|META-INF/.*\.EC" \
-            && echo "AAB firmado correctamente" \
-            || { echo "::error::El AAB no contiene firma"; exit 1; }
+          ls -lh "$AAB"
+          if unzip -l "$AAB" | grep -qE "META-INF/.*\.(RSA|EC|DSA)"; then
+            echo "AAB FIRMADO — listo para subir a Play Console"
+          elif [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "::error::Había clave de firma pero el AAB salió sin firmar"
+            exit 1
+          else
+            echo "::warning::AAB SIN FIRMAR (no hay clave configurada). El proyecto compila, pero este archivo no sirve para Play Console."
+          fi
 
       - name: Borrar credenciales del runner
         if: always()
