@@ -388,6 +388,7 @@ function navigateTo(view) {
 function navigateToMed(medId) {
   const med = MEDS_DB.find(m => m.id === medId);
   if (!med) return;
+  if (window.MS360Premium && !window.MS360Premium.allow()) return;
 
   State.previousView = State.currentView;
   State.currentMed = medId;
