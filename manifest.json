@@ -9,7 +9,11 @@
   "background_color": "#0a0f1a",
   "theme_color": "#0a0f1a",
   "lang": "es",
-  "categories": ["medical", "health", "education"],
+  "categories": [
+    "medical",
+    "health",
+    "education"
+  ],
   "icons": [
     {
       "src": "./icono-192.png",
@@ -23,5 +27,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "id": "./"
 }

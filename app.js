@@ -91,61 +91,17 @@ function initApp() {
    INSTALACIÓN PWA (Android/Chrome)
 ═══════════════════════════════════════════════════════ */
 function bindInstall() {
-  // Ya instalada / abierta como app standalone: no mostrar nada
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone === true;
-  if (isStandalone) return;
-
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    State.deferredInstallPrompt = e;
-    showInstallUI();
-  });
-
-  window.addEventListener('appinstalled', () => {
-    State.deferredInstallPrompt = null;
-    hideInstallUI();
-    try { localStorage.setItem('vade_install_dismissed', '1'); } catch {}
-  });
-
+  if (window.MS360Install?.isStandalone()) return;
   if (Dom.installToggle) {
-    Dom.installToggle.addEventListener('click', triggerInstallPrompt);
+    Dom.installToggle.classList.remove('hidden');
+    Dom.installToggle.addEventListener('click', () => window.MS360Install?.prompt());
   }
-  if (Dom.installBannerBtn) {
-    Dom.installBannerBtn.addEventListener('click', triggerInstallPrompt);
-  }
-  if (Dom.installBannerClose) {
-    Dom.installBannerClose.addEventListener('click', () => {
-      Dom.installBannerHome.classList.add('hidden');
-      try { localStorage.setItem('vade_install_banner_dismissed', '1'); } catch {}
-    });
-  }
-}
-
-function showInstallUI() {
-  if (Dom.installToggle) Dom.installToggle.classList.remove('hidden');
-
-  let bannerDismissed = false;
-  try { bannerDismissed = localStorage.getItem('vade_install_banner_dismissed') === '1'; } catch {}
-  if (Dom.installBannerHome && !bannerDismissed) {
-    Dom.installBannerHome.classList.remove('hidden');
-  }
-}
-
-function hideInstallUI() {
-  if (Dom.installToggle) Dom.installToggle.classList.add('hidden');
-  if (Dom.installBannerHome) Dom.installBannerHome.classList.add('hidden');
-}
-
-async function triggerInstallPrompt() {
-  if (!State.deferredInstallPrompt) return;
-  State.deferredInstallPrompt.prompt();
-  try {
-    await State.deferredInstallPrompt.userChoice;
-  } finally {
-    State.deferredInstallPrompt = null;
-    hideInstallUI();
-  }
+  if (Dom.installBannerBtn) Dom.installBannerBtn.addEventListener('click', () => window.MS360Install?.prompt());
+  if (Dom.installBannerClose) Dom.installBannerClose.addEventListener('click', () => Dom.installBannerHome.classList.add('hidden'));
+  window.addEventListener('appinstalled', () => {
+    Dom.installToggle?.classList.add('hidden');
+    Dom.installBannerHome?.classList.add('hidden');
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
